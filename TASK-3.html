@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f5e6ca, #a8c0ff);
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+        .container, .choices-container, .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            width: 400px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .button {
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            margin: 20px 0;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.3);
+            color: #333;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .cell.x {
+            color: #f7f709;
+        }
+
+        .cell.o {
+            color: #ea0d2b;
+        }
+
+        .status {
+            margin: 20px;
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .winner-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 100;
+            animation: popupAnimation 0.5s ease-out forwards;
+        }
+
+        @keyframes popupAnimation {
+            from {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        #winnerText {
+            margin-top: 0;
+            color: #333;
+            font-size: 2rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 500px) {
+            .board {
+                grid-template-columns: repeat(3, 80px);
+                grid-gap: 8px;
+            }
+            
+            .cell {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .button {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="homePage">
+        <h1>Tic-Tac-Toe</h1>
+        <button class="button" onclick="goToChoices()">Play Now</button>
+    </div>
+
+    <div class="choices-container" id="choicesPage" style="display: none;">
+        <h2>Choose X or O</h2>
+        <div class="button-container">
+            <button class="button" onclick="chooseSymbol('X')">X</button>
+            <button class="button" onclick="chooseSymbol('O')">O</button>
+        </div>
+    </div>
+
+    <div class="game-container" id="gamePage" style="display: none;">
+        <h2 id="status">Next Player: X</h2>
+        <div class="board" id="board"></div>
+        <div class="button-container">
+            <button class="button" onclick="resetGame()">Play Again</button>
+            <button class="button" onclick="goToHome()">Back</button>
+        </div>
+    </div>
+
+    <div class="winner-popup" id="winnerPopup">
+        <h2 id="winnerText"></h2>
+        <button class="button" onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        // Game state variables
+        let currentPlayer = 'X';
+        let boardState = ['', '', '', '', '', '', '', '', ''];
+        let playerChoice = 'X';
+        let gameActive = true;
+
+        // DOM elements
+        const statusElement = document.getElementById('status');
+        const boardElement = document.getElementById('board');
+        const winnerPopup = document.getElementById('winnerPopup');
+        const winnerText = document.getElementById('winnerText');
+
+        // Initialize the board
+        function initializeBoard() {
+            boardElement.innerHTML = '';
+            boardState.forEach((cell, index) => {
+                const cellElement = document.createElement('div');
+                cellElement.classList.add('cell');
+                if (cell === 'X') {
+                    cellElement.classList.add('x');
+                } else if (cell === 'O') {
+                    cellElement.classList.add('o');
+                }
+                cellElement.textContent = cell;
+                cellElement.addEventListener('click', () => makeMove(index));
+                boardElement.appendChild(cellElement);
+            });
+        }
+
+        // Navigation functions
+        function goToChoices() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('choicesPage').style.display = 'flex';
+        }
+
+        function chooseSymbol(symbol) {
+            playerChoice = symbol;
+            currentPlayer = symbol;
+            document.getElementById('choicesPage').style.display = 'none';
+            document.getElementById('gamePage').style.display = 'flex';
+            resetGame();
+        }
+
+        function goToHome() {
+            document.getElementById('gamePage').style.display = 'none';
+            document.getElementById('homePage').style.display = 'flex';
+        }
+
+        // Game logic functions
+        function makeMove(index) {
+            if (boardState[index] === '' && gameActive) {
+                boardState[index] = currentPlayer;
+                
+                // Update the board
+                const cells = document.querySelectorAll('.cell');
+                cells[index].textContent = currentPlayer;
+                cells[index].classList.add(currentPlayer.toLowerCase());
+                
+                // Check for winner or draw
+                if (checkWinner()) {
+                    gameActive = false;
+                    showWinnerPopup(`${currentPlayer} Wins!`);
+                    return;
+                }
+                
+                // Check for draw
+                if (!boardState.includes('')) {
+                    gameActive = false;
+                    showWinnerPopup('It\'s a Draw!');
+                    return;
+                }
+                
+                // Switch player
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                statusElement.textContent = `Next Player: ${currentPlayer}`;
+            }
+        }
+
+        function checkWinner() {
+            const winningCombinations = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6]             // diagonals
+            ];
+            
+            return winningCombinations.some(combination => {
+                const [a, b, c] = combination;
+                return boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c];
+            });
+        }
+
+        function resetGame() {
+            boardState = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = playerChoice;
+            gameActive = true;
+            statusElement.textContent = `Next Player: ${currentPlayer}`;
+            initializeBoard();
+        }
+
+        function showWinnerPopup(message) {
+            winnerText.textContent = message;
+            winnerPopup.style.display = 'block';
+        }
+
+        function closePopup() {
+            winnerPopup.style.display = 'none';
+        }
+
+        // Initialize the game when the page loads
+        window.onload = function() {
+            initializeBoard();
+        };
+    </script>
+</body>
+</html>
